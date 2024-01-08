@@ -1,9 +1,9 @@
-<?php 
+<?php
     class Database{
 
         public $bdd;
         private $host = "localhost";
-        private $dbname = "finance-flow";
+        private $dbname = "draft-shop";
         private $username = "root";
         private $password = "";
 
@@ -14,4 +14,3 @@
                                 ";charset=utf8", $this->username , $this->password);
         }
     }
-?>

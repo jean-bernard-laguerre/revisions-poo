@@ -3,21 +3,24 @@
     include_once './class/Product.php';
     include_once './class/Category.php';
 
-    $newProduct = new Product(
-        1,
-        'Poisson',
-        ['photo1', 'photo2'],
-        10,
-        'Un poisson',
-        5,
-    );
-    var_dump($newProduct);
-    $newProduct->save();
+    $db = new Database();
 
-    $newCategory = new Category(
-        1,
-        'Poisson',
-        'Un poisson',
+    $req = $db->bdd->prepare("SELECT * FROM product WHERE id = 7");
+    $req->execute();
+    $product = $req->fetch(PDO::FETCH_ASSOC);
+
+    $product2 = new Product(
+        $product['id'],
+        $product['name'],
+        json_decode($product['photo']),
+        $product['price'],
+        $product['description'],
+        $product['quantity'],
+        $product['created_at'],
+        $product['updated_at'],
+        $product['category_id']
     );
-    var_dump($newCategory);
-    $newCategory->save();
+
+    $category = $product2->getCategory();
+    $products = $category->getProducts();
+    var_dump($products);
