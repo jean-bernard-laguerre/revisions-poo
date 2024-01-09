@@ -1,35 +1,18 @@
 <?php
-    class Product {
-        private int $id;
-        private string $name;
-        private array $photo;
-        private int $price;
-        private string $description;
-        private int $quantity;
-        private DateTime $created_at;
-        private DateTime $updated_at;
-        private int $id_category;
+    abstract class AbstractProduct {
 
         public function __construct(
-            int $id = 1,
-            string $name = "",
-            array $photo = [],
-            int $price = 0,
-            string $description = "",
-            int $quantity = 0,
-            string $created_at = "",
-            string $updated_at = "",
-            int $id_category = 1
+            protected ?int $id = null,
+            protected ?string $name = null,
+            protected ?array $photo = null,
+            protected ?int $price = null,
+            protected ?string $description = null,
+            protected ?int $quantity = null,
+            protected ?DateTime $created_at = null,
+            protected ?DateTime $updated_at = null,
+            protected ?int $id_category = null
         ) {
-            $this->id = $id;
-            $this->name = $name;
-            $this->photo = $photo;
-            $this->price = $price;
-            $this->description = $description;
-            $this->quantity = $quantity;
-            $this->created_at = new DateTime($created_at);
-            $this->updated_at = new DateTime($updated_at);
-            $this->id_category = $id_category;
+  
         }
 
         public function getId(): int {
@@ -85,14 +68,14 @@
             $this->id_category = $id_category;
         }
 
-        public function create(): Product {
+        public function create(): AbstractProduct {
             $db = new Database();
             $req = $db->bdd->prepare("INSERT INTO product (name, price, description, photo, quantity, created_at, updated_at, category_id)
                                     VALUES (:name, :price, :description, :photo, :quantity, :created_at, :updated_at, :id_category)");
             $req->bindParam(':name', $this->name);
             $req->bindParam(':price', $this->price);
             $req->bindParam(':description', $this->description);
-            $req->bindParam(':photo', json_encode($this->photo));
+            $req->bindValue(':photo', json_encode($this->photo));
             $req->bindParam(':quantity', $this->quantity);
             $req->bindValue(':created_at', $this->created_at->format('Y-m-d H:i:s'));
             $req->bindValue(':updated_at', $this->updated_at->format('Y-m-d H:i:s'));
@@ -103,7 +86,7 @@
             }
             return false;
         }
-        public function update(): Product {
+        public function update(): AbstractProduct {
             $db = new Database();
             $req = $db->bdd->prepare("UPDATE product SET name = :name, price = :price, description = :description, photo = :photo , quantity = :quantity, updated_at = :updated_at, category_id = :id_category WHERE id = :id");
             $req->bindParam(':name', $this->name);
@@ -115,18 +98,6 @@
             $req->bindParam(':id_category', $this->id_category);
             $req->bindParam(':id', $this->id);
             if($req->execute()) {
-                $req = $db->bdd->prepare("DELETE FROM product_photo WHERE product_id = :id");
-                $req->bindParam(':id', $this->id);
-                $req->execute();
-
-                foreach ($this->photo as $photo) {
-                    $req = $db->bdd->prepare("INSERT INTO product_photo (name, product_id)
-                                            VALUES (:name, :product_id)");
-                    $req->bindParam(':name', $photo);
-                    $req->bindParam(':product_id', $this->id);
-                    $req->execute();
-                }
-
                 return $this;
             }
             return false;
@@ -141,51 +112,10 @@
                 $category['id'],
                 $category['name'],
                 $category['description'],
-                $category['created_at'],
-                $category['updated_at']
+                new DateTime($category['created_at']),
+                new DateTime($category['updated_at'])
             );
         }
-        public function findOneById(int $id): Product {
-            $db = new Database();
-            $req = $db->bdd->prepare("SELECT * FROM product WHERE id = :id");
-            $req->bindParam(':id', $id);
-            if($req->execute()) {
-                $product = $req->fetch(PDO::FETCH_ASSOC);
-                return new Product(
-                    $product['id'],
-                    $product['name'],
-                    json_decode($product['photo']),
-                    $product['price'],
-                    $product['description'],
-                    $product['quantity'],
-                    $product['created_at'],
-                    $product['updated_at'],
-                    $product['category_id']
-                );
-            }
-            return false;
-        }
-        public function findAll(): array {
-            $db = new Database();
-            $req = $db->bdd->prepare("SELECT * FROM product");
-            if($req->execute()) {
-                $products = $req->fetchAll(PDO::FETCH_ASSOC);
-                $productsArray = [];
-                foreach ($products as $product) {
-                    $productsArray[] = new Product(
-                        $product['id'],
-                        $product['name'],
-                        json_decode($product['photo']),
-                        $product['price'],
-                        $product['description'],
-                        $product['quantity'],
-                        $product['created_at'],
-                        $product['updated_at'],
-                        $product['category_id']
-                    );
-                }
-                return $productsArray;
-            }
-            return false;
-        }
+        abstract public function findOneById(int $id): AbstractProduct ;
+        abstract public function findAll(): array;
     }

@@ -1,23 +1,14 @@
 <?php
     class Category {
-        private int $id;
-        private string $name;
-        private string $description;
-        private DateTime $created_at;
-        private DateTime $updated_at;
 
         public function __construct(
-            int $id = 1,
-            string $name = "",
-            string $description = "",
-            string $created_at = "",
-            string $updated_at = ""
+            private ?int $id = null,
+            private ?string $name = null,
+            private ?string $description = null,
+            private ?DateTime $created_at = null,
+            private ?DateTime $updated_at = null
         ) {
-            $this->id = $id;
-            $this->name = $name;
-            $this->description = $description;
-            $this->created_at = new DateTime($created_at);
-            $this->updated_at = new DateTime($updated_at);
+
         }
 
         public function getId(): int {
@@ -62,15 +53,15 @@
             $result = $req->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($result as $product) {
-                $product = new Product(
+                $product = new AbstractProduct(
                     $product['id'],
                     $product['name'],
                     json_decode($product['photo']),
                     $product['price'],
                     $product['description'],
                     $product['quantity'],
-                    $product['created_at'],
-                    $product['updated_at'],
+                    new DateTime($product['created_at']),
+                    new DateTime($product['updated_at']),
                     $product['category_id']
                 );
                 $products[] = $product;

@@ -1,26 +1,23 @@
 <?php
-    include_once './class/Database.php';
-    include_once './class/Product.php';
-    include_once './class/Category.php';
+
+    require_once 'vendor/autoload.php';
 
     $db = new Database();
 
-    $req = $db->bdd->prepare("SELECT * FROM product WHERE id = 7");
-    $req->execute();
-    $product = $req->fetch(PDO::FETCH_ASSOC);
-
-    $product2 = new Product(
-        $product['id'],
-        $product['name'],
-        json_decode($product['photo']),
-        $product['price'],
-        $product['description'],
-        $product['quantity'],
-        $product['created_at'],
-        $product['updated_at'],
-        $product['category_id']
+    $clothing = new Clothing(
+        1,
+        'T-shirt',
+        ['tshirt.jpg'],
+        15,
+        'T-shirt en coton',
+        10,
+        new DateTime(),
+        new DateTime(),
+        1,
+        'M',
+        'Noir',
+        "Homme",
+        2
     );
-
-    $category = $product2->getCategory();
-    $products = $category->getProducts();
-    var_dump($products);
+    var_dump($clothing);
+    
