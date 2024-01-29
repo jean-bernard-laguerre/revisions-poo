@@ -2,10 +2,8 @@
 
     require_once 'vendor/autoload.php';
 
-    $db = new Database();
-
-    $clothing = new Clothing(
-        1,
+    $clothing = new App\Clothing(
+        null,
         'T-shirt',
         ['tshirt.jpg'],
         15,
